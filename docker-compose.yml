@@ -1,0 +1,55 @@
+services:
+  agent1:
+    build: .
+    container_name: pi-agent-1
+    hostname: pi-agent-1
+    user: "1000:1000"
+    volumes:
+      - ./workspaces/p1:/home/pi/.pi_workspace
+      - ./config/agent/models.json:/home/pi/.pi/agent/models.json:ro
+    environment:
+      - PI_WORKSPACE=/home/pi/.pi_workspace
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    ports:
+      - "8001:8000"
+    networks:
+      - pi-network
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  agent2:
+    build: .
+    container_name: pi-agent-2
+    hostname: pi-agent-2
+    user: "1000:1000"
+    volumes:
+      - ./workspaces/p2:/home/pi/.pi_workspace
+      - ./config/agent/models.json:/home/pi/.pi/agent/models.json:ro
+    environment:
+      - PI_WORKSPACE=/home/pi/.pi_workspace
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    ports:
+      - "8002:8000"
+    networks:
+      - pi-network
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+networks:
+  pi-network:
+    driver: bridge
